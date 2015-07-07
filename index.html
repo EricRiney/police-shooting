@@ -1,22 +1,59 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html>
-  <head>
-    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="js/map.js"></script>
-    <title>Police Shootings</title>
-    <!-- Get the leaflet.js library and stylesheet -->
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-    <link rel="stylesheet" href="css/main.css"/>
-  </head>
+<head>
+<meta charset=utf-8 />
+<title>Police Shootings</title>
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+<body>
 
-  <body>
-    <div id="container" style="width:500px; height:500px;"></div>
-    <script>
-      
-    	// This is where you should execute your drawMap function // 
 
-    </script>
-  </body>
+<div id='map'></div>
+
+<script>
+L.mapbox.accessToken = 'pk.eyJ1IjoiZmFpbHMiLCJhIjoiYzI2OWUxN2IxYWJlZjUyMGY2ZTA1Y2JhNDNhY2M1MWYifQ.UZgt-Gs9U68Bz75hTzSx2A';
+var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=' + L.mapbox.accessToken);
+
+var map = L.map('map')
+    .addLayer(mapboxTiles)
+    .setView([40.737, -73.923],4);
+
+var data;
+$.ajax({
+    url:"response.json",
+    type: "get",
+    success:function(dat) {
+       data = dat
+       var circle;
+       // Loop through your data array
+      data.map(function(d) {
+
+        if(d["Victim's Age"]<=18) {
+        circle = new L.circle([d.lat, d.lng], 30000, {
+        color:'red', opacity:.5}).addTo(map);
+        var text =  d.Weapon;
+        circle.bindPopup(text)
+      } 
+        if(d["Victim's Age"]>18) {
+        circle = new L.circle([d.lat, d.lng], 200, {
+        color:'blue', opacity:.5}).addTo(map);
+        var text =  d.Weapon;
+        circle.bindPopup(text)
+      } 
+
+      })
+    }, 
+   dataType:"json"
+}) 
+
+
+</script>
+</body>
 </html>
